@@ -1,0 +1,51 @@
+---
+title: "The Best Intro To Stats Section"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(readr)
+library(ggplot2)
+library(dplyr)
+library(plotly)
+```
+
+## Reading the Data ##
+
+This dataplot lists the favorite foods of Introduction to Statistics TR 10:30 am class by Dr. Taylor Arnold. IT shows the most popular foods of the millienial generation. 
+
+```{r,echo=FALSE, message=FALSE}
+food <- read_csv("https://raw.githubusercontent.com/URstats/stat209-s18-byongholee/master/fav_restaurants.csv")
+```
+
+## Plotting the Data ##
+
+
+
+#### This graph shows the most popular locations of restaurants by the class. One location seems to be very popular, Richmond. ####
+
+
+```{r}
+ggplot(food, aes(location)) +
+  geom_bar()
+```
+
+
+#### This graph shows the cost per person over yearly visits. Most individuals spend less than $20 dollars when they visit a restaurant less than 20 times per year. ####
+
+
+```{r}
+ggplot(food, aes(cost_per_person, yearly_visits)) +
+  geom_point()
+```
+
+
+#### This is a line graph depicting the scatterplot from graph 2. The majority of students tend to spend less when they visit a restaurant more. ####
+
+
+
+```{r}
+ggplot(food, aes(cost_per_person, yearly_visits)) +
+  geom_line()
+```
