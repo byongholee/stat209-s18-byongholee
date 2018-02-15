@@ -1,0 +1,114 @@
+---
+title: "Lab 09: Annotating Data Visualizations"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(warning = FALSE)
+knitr::opts_chunk$set(message = FALSE)
+knitr::opts_chunk$set(fig.height = 5)
+knitr::opts_chunk$set(fig.width = 8.5)
+knitr::opts_chunk$set(out.width = "100%")
+knitr::opts_chunk$set(dpi = 300)
+
+library(readr)
+library(ggplot2)
+library(dplyr)
+library(viridis)
+theme_set(theme_minimal())
+```
+
+## Pick a dataset
+
+Today you'll have a choice of three datasets to work with. You can choose
+either to investigate Donald Trump's approval rating:
+
+```{r}
+trump <- read_csv("https://statsmaths.github.io/stat_data/trump_approval.csv")
+```
+
+Murder rates across different cities in the US:
+
+```{r}
+murder <- read_csv("https://statsmaths.github.io/stat_data/murder_by_city.csv")
+```
+
+Or the daily close values of the Dow Jones Industrial Average:
+
+```{r}
+djia <- read_csv("https://statsmaths.github.io/stat_data/djia_daily.csv")
+```
+
+Pick a dataset (feel free to delete the others from the Rmd file if you would
+like), and work on the instructions in the next section.
+
+## Instructions
+
+Your goal in this lab is to construct an interesting visualization with the
+data that you choose above. You should make use of several manual annotations
+in an effort to tell a visual story about the dataset. Below, you should
+eventually provide a few sentences describing what you found in the dataset
+and then a single plot illustrating the interesting aspects of the data.
+You should incorporate some external information into your plot.
+
+Note that you will certainly want to create many initial exploratory plots
+before settling on a final one for analysis. This time, make sure you that you
+upload both the Rmd and the html files to GitHub (remember, the final report
+should have just one single visualization).
+
+Also note that you will have to use the format `x = as.Data("2017-01-06")` to
+add annotations to an axis that uses time as a component.
+
+## Analysis
+
+### Below is the basic graph that shows the murders in 2014 and 2015 per state. The lighter the color, the more change has occured between the two years. 
+
+```{r}
+ggplot(murder, aes(murders_2014, murders_2015))+
+  geom_point(aes(color = change), size = 2)
+```
+
+### This graph expands on the previous graph by highlighting Illinois as an extreme outlier. Illinois had had the highest murder rate in both 2014 and the 2015. After extensive research, some factors contribute to the homicide rate including loose gun laws, rise of gangs, and race. 
+
+```{r}
+ggplot(murder, aes(murders_2014, murders_2015))+
+  geom_point(aes(color = change), size = 1.5)+
+  annotate("text", x=411, y=470, label = "Illinois", size = 4)+
+  annotate("point", x = 411, y =478, size = 3)
+```
+
+### The slope reveals that some states historically have a pattern of murder such as New York, Houston, and Wisconsin. In order to address any issue regarding murder rates, we should look to fix those states first.   
+
+```{r}
+ggplot(murder, aes(murders_2014, murders_2015))+
+  geom_point(aes(color = change), size = 1.5)+
+  annotate("text", x=411, y=470, label = "Illinois", size = 4)+
+  annotate("point", x = 411, y =478, size = 3)+
+  geom_abline(slope =1, intercept =0)
+```
+
+### The last graph provides a look at the states with the lowest murder rates, as the majority states fell under 200 murders a year. States like Massachusetts, Nebraska, and California have some of the lowest murder rates with downward change. While previous graphs showed us which states we need to fix, this graph shows us which state's policies or environment could we mimic for others.  
+
+```{r}
+ggplot(murder, aes(murders_2014, murders_2015))+
+  geom_point(aes(color = change), size = 2)+
+  annotate("text", x=411, y=455, label = "Illinois", size = 3)+
+  annotate("point", x = 411, y =478, size = 3)+
+  annotate("text", x=411, y = 470, label = "Chicago,", size = 3)+
+  annotate("rect", xmin = 0, xmax = 170, ymin=0, ymax=200, fill="seagreen1", alpha = 0.1 )+
+  geom_abline(slope =1, intercept =0)+
+  xlab("Murders in 2014")+
+  ylab("Murders in 2015")+
+  labs(size = "Change")+
+  ggtitle("Murders in the U.S.")
+
+```
+
+
+
+
+
+
+
+
