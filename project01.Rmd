@@ -1,0 +1,91 @@
+---
+title: "Do You Go to the Gym?"
+author: "Byongho Lee"
+output:
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE, message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(readr)
+library(dplyr)
+library(ggplot2)
+library(plotly)
+```
+
+# Do You Go to the Gym?
+
+This exploratory data analysis will be looking at data of people who go to the Weinstein gym at the University of Richmond. It attempts to explore the patterns that exist of people who go to the gym such as the clothes they wear and what items they bring. I collected this data by observing 75 individuals and groups as they entered the gym. This semester, I have been going to the gym regularly due to a dance showcase I am participating in. I was interested to see if my peers, professors, and community members have the same profile as I do when I go to the gym. 
+
+## Data dictionary
+
+Here is a data dictionary for the gym dataset:
+
+- **number_of_group**: a numeric variable giving the number of people that go to the gym, either alone or in a group 
+- **equipment **: a character variable giving the item a student brings to the gym for an athletic purpose
+- **clothing_brand **: a categorical variable describing the outfit brand the individual(s) is wearing. Possible options are:
+"Adidas"
+"Nike"
+"Puma"
+"UnderArmor" 
+"North Face"
+"College" (including outfits with college names or logos)
+"Other"
+- **number_of_tries**: a numeric variable giving the number of attempts an individual(s) tries to enter the gym 
+- **type_of_member**: a categorical variable describing the type of person who has access to the gym. Possible options are: 
+"Student"
+"Faculty"
+"Member"
+
+Which can be read in as follows:
+
+```{r}
+gym <- read_csv("https://raw.githubusercontent.com/urstats/stat209-s18-byongholee/master/do_you_gym1.csv")
+```
+
+## Exploratory Analysis
+
+## Patterns at the Gym: Popular Brands 
+
+I will be analyzing two inquiries with my data. The first is to see which clothing brands are most popular among people that came to the gym. Shown in the bar graph below, Nike is the most popular clothing brand with Adidas being the second most popular. Being the two most popular athletic clothing companies, this is no suprise. However, North Face, UnderArmor, College, and Puma were among the lowest brands worn. This could have implications for those companies, but it is more likely that the Richmond demographic favors Nike and Adidas. 
+
+```{r, echo=FALSE}
+ggplot(gym, aes(clothing_brand, number_of_group, fill = clothing_brand))+
+  geom_bar(stat="identity", width=0.5) +theme_minimal()+
+  xlab("Total Number of Brands Worn") +
+  ylab("Number of People") +
+  labs(fill = "Clothing Brands") +
+  ggtitle("What Do You Wear?")
+```
+
+## Patterns at the Gym: Popular Brands Among Different Groups
+
+Building off the first inquiry, this bar graph shows which brands are popular among students, faculty, and staff. The most interesting pattern we see is that faculty are generally conservative with brands wearing only College, Nike, and Other clothing. On the other hand, students have the most diversity, wearing brands such as UnderArmor, Puma, and North Face. Despite this, Nike seems to be the most popular across the board.
+
+```{r, echo=FALSE}
+ggplot(gym, aes(x=type_of_member, y=number_of_group, fill=clothing_brand)) +
+  geom_bar(stat="identity", position=position_dodge())+
+  xlab("Brands Based On Type of Member") +
+  ylab("Number of People") +
+  labs(fill = "Clothing Brands") +
+  ggtitle("Who Wears What?")
+```
+
+## Patterns at the Gym: Most Frequent Items
+
+While the other graphs defined patterns of what people wear, this pie graph explores the different items people bring with them to the gym. The total number includes all the individuals including those in a group. As seen below, almost 50% of people do not bring anything with them to the gym. The ones that do are mainly bringing bags and basketballs, especially in big groups. This is understandable as people usually do not bring basketballs if they are going alone. Furthermore, people bring bags to hold shoes, extra clothes, and other equipement. One surprising discovery was the frequency of racket and badmittions as the gym rents those items out to students. It could be that some people do not know that service. 
+
+```{r, echo=FALSE}
+ggplot(gym, aes(x="", y=number_of_group, fill=equipment))+
+geom_bar(width = 1, stat = "identity")+
+  coord_polar("y", start=0)+
+  xlab("Type of Equipement") +
+  ylab("Total Number of People") +
+  labs(fill = "Equipment") +
+  ggtitle("What Did You Bring?")
+```
+
+## Conclusion
+
+Ultimately, my goal was to determine what patterns exist for people who go to the gym. Using my data and analysis, I was able to understand what clothing brands are popular among people that go to the gym and classify them by their membership. In addition, I was able to see which items are valuable to people when they come to the gym. For the future, I would love to observe people longer and see how much time people spend at the gym. This could contribute to my research as there might be a relationship between what people wear and bring based on how long they go the gym for. 
