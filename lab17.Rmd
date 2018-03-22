@@ -1,0 +1,214 @@
+---
+title: "Lab 17: Numeric Summaries"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(warning = FALSE)
+knitr::opts_chunk$set(message = FALSE)
+knitr::opts_chunk$set(fig.height = 5)
+knitr::opts_chunk$set(fig.width = 8.5)
+knitr::opts_chunk$set(out.width = "100%")
+knitr::opts_chunk$set(dpi = 300)
+
+library(readr)
+library(ggplot2)
+library(dplyr)
+library(viridis)
+library(forcats)
+library(smodels)
+theme_set(theme_minimal())
+```
+
+## Instructions
+
+Below you will find several empty R code scripts and answer prompts. Your task
+is to fill in the required code snippets and answer the corresponding
+questions.
+
+## Cereal Data
+
+Today, we start by looking at a collection of breakfast cereals:
+
+```{r}
+cereal <- read_csv("https://statsmaths.github.io/stat_data/cereal.csv")
+```
+
+With variables:
+
+- name: name of the specific cereal
+- brand: name of the cereal's manufacturer
+- sugar: amount of sugar per serving (g)
+- score: healthiness score; 0-100; 100 is the best
+- shelf: what shelf the cereal is typically stocked on in the store
+
+Produce a histogram of the sugar variable.
+
+```{r}
+hist(cereal$sugar)
+```
+
+Now, compute the standard deviation of the variable `sugar`:
+
+```{r}
+sd(cereal$sugar)
+```
+
+What are the units of this measurement?
+
+
+**Answer**: The units of measurement for sugar is amoung of sugar per serving in grams. 
+
+Now, compute the deciles of the variable `score`:
+
+```{r}
+deciles(cereal$score)
+```
+
+What is the value of the 30th percentile. Describe what this means in words:
+
+**Answer**: 34.5 is the 30%. This means that a third of cereal have a healthiness score of 34.5, which is very low considering 100 equals the healthiest. 
+
+Produce a boxplot of score and brand.
+
+```{r}
+ggplot(cereal, aes(brand, score))+
+  geom_boxplot()
+```
+
+Which brand seems to have the healthiest cereals?
+
+**Answer**: Nabisco seems to have the healthiest cereals with their average score being above 60. All of the other cereals have a large standard devidation averaging around the 40s. 
+
+Produce a boxplot of score and shelf.
+
+```{r}
+ggplot(cereal, aes(shelf, score))+
+  geom_boxplot()
+```
+
+Produce a boxplot of sugar and shelf.
+
+```{r}
+ggplot(cereal, aes(shelf, sugar))+
+  geom_boxplot()
+```
+
+If I want a healthy but reasonably sweet cereal which shelf would be the
+best to look on?
+
+**Answer**: The shelf that has the healthiest, but reasonable sweet cereal is the bottom shelf, as it has a lower sugar quantity. However, the top shelf also has cereals that fit this category. Only the middle shelf has an obvious high sugar rating with a low healthiness rating. 
+
+## Tea Reviews
+
+Next, we will take another look at a dataset of tea reviews that I used in
+a previous lecture:
+
+```{r}
+tea <- read_csv("https://statsmaths.github.io/stat_data/tea.csv")
+```
+
+With variables:
+- name: the full name of the tea
+- type: the type of tea. One of:
+    - black
+    - chai
+    - decaf
+    - flavors
+    - green
+    - herbal
+    - masters
+    - matcha
+    - oolong
+    - pu_erh
+    - rooibos
+    - white
+- score: user rated score; from 0 to 100
+- price: estimated price of one cup of tea
+- num_reviews: total number of online reviews
+
+Draw a scatterplot with num_reviews (x-axis) against score (y-axis) and add a
+regression line (recall: `geom_smooth(method="lm")`).
+
+```{r}
+ggplot(tea, aes(num_reviews, score))+
+  geom_point()+
+  geom_smooth(method="lm")
+```
+
+Does the score tend to increase, decrease, or remain the same as the number
+of reviews increases?
+
+**Answer**: The score tends to increase as the number of reviews increase. 
+
+Calculate the ventiles of the variable price.
+
+```{r}
+ventiles(tea$price)
+sd(tea$price)
+```
+
+What is the 80th percentile? Describe it in words, include the units of the
+problem in your answer.
+
+**Answer**: For 80% of the teas, the price of a cup of tea is estimated to be $30 dollars. 
+
+Plot the number of reviews (x-axis) against the score variable. Color
+the points according to price binned into 5 buckets.
+
+```{r}
+quartiles(tea$price)
+ggplot(tea, aes(price, num_reviews)) +
+  geom_point(aes(color = bin(price, 5)))
+```
+
+What tends to be true about the number of reviews for the most expensive
+20% of teas?
+
+**Answer**: For the most expensive 20% of teas, there are less reviews because who would pay over $30 for a cup of tea??? In seriousness, most people would not pay for that price, so there is ultimately less reviews. 
+
+Create a dataset named `white` that consists of only white teas.
+
+```{r}
+whites <- filter(tea, type == "white")
+whites
+```
+
+Calculate the standard deviation of the price for white teas and the
+standard deviation of the price for all of the teas.
+
+```{r}
+sd(whites$price)
+```
+
+Is the variation of the white tea prices smaller, larger, or about the same
+as the entire dataset?
+
+**Answer**: The variation of the white tea prices are smaller than the entire dataset. The white tea standard deviation is 13.59 while overall was 30.42.
+
+Summarize the dataset by the type of tea and save the results as a variable
+named `tea_type`.
+
+```{r}
+tea_type <- group_summarize(tea, type)
+```
+
+Plot the average price (x-axis) against the average score (y-axis) of
+each type  of tea. Make the size of the points proportional to the number
+of teas in each category and label the points with geom_text_repel and the
+tea type.
+
+```{r}
+library(ggrepel)
+ggplot(tea_type, aes(price_mean, score_mean))+
+  geom_text_repel(aes(price_mean, score_mean, label = rownames(type)))+
+  theme_classic(base_size = 10)
+```
+
+Describe an interesting pattern or set of outliers that you found in the
+previous plot. This does not need to take more than 1-2 sentences.
+
+**Answer**:
+
+
