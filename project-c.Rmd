@@ -1,0 +1,129 @@
+---
+title: "Dining Dollar Management"
+author: "Byongho Lee"
+output: html_document
+---
+
+```{r setup, include=FALSE, message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(message = FALSE)
+knitr::opts_chunk$set(warning = FALSE)
+knitr::opts_chunk$set(out.width = "100%")
+knitr::opts_chunk$set(dpi = 300)
+
+library(readr)
+library(ggplot2)
+library(dplyr)
+library(ggmap)
+library(viridis)
+library(forcats)
+library(smodels)
+```
+
+## Introduction
+
+For this project, I was interested in learning how people are managing their dining dollars for the Spring semester. Students receive roughly 760 dining dollars at the beginning of the semester and the school reccomends we spend about 40 a week. 
+
+My first hypothesis is that students at 8:15 will have less dining dollars because people that go there will habitually buy coffee and spend more throughout the semester. 
+
+My second hypothesis is that people buy more items at Passport because there are so many delicious items on the menu: paninis, drinks, sushi, and gelato. 
+
+My final hypothesis for the data is that most students will be around the 150-250 range following the school's reccomendation.
+
+## Methods
+
+My main method of collecting data was observing students behind them in line at various dining locations. As they purchased their items and swiped their card, I was able to write down 100 observations. My only concern was that this data was collected over the time period of two weeks, so there could be some variance between the time of both weeks. 
+
+Here is a data dictionary for the ddollars dataset:
+
+- **location**: a categorical variable giving the dining location where students spend their dining dollars. Possible options are: 
+"Tylers"
+"8:15" (This is a not a numeric category) 
+"ETC"
+"Passport"
+
+- **dining_dollars **: a numeric variable giving the number of dining dollars a student currently has.
+- **items_purchased **: a numeric variable describing how many items a student purchases at a given location. 
+
+```{r}
+ddollars <- read_csv("https://raw.githubusercontent.com/urstats/stat209-s18-byongholee/master/dining_dollar_management.csv")
+```
+My analysis consists of three models: One model showing the relationship between dining dollars and location, another with items purchased and location, and a final model showing the impact of items purchased on dining dollars and location. I wil then use linear regression models and show the means in various graphs to test my hypotheses. The baseline for location will be 8:15 as that location was the largest number of data collected. 
+
+## Results
+
+### Dining Dollars Per Location
+
+In the graph below, we see that the mean for dining dollars at 8:15 (baseline) is roughly 196 at a 95% confiden interval. This changes for the other locations: For ETC, the mean is 202. For Passport, the mean is 197. For Tylers, the mean is 220. 
+
+```{r,echo=FALSE}
+model <- lm_basic((dining_dollars) ~ 1 + location, data = ddollars)
+reg_table(model, level=.95)
+```
+
+The graph below shows the data points of dining dollars per location. The colored points show the mean based on the regression model. It seems Tyler's has the highest dining dollar mean, while 8:15 has the lowest. This follows my first hypothesis where more people spend money at 8:15 and therefore have the lowest amount of dining dollars. However, other locations are very close to this number, so I would argue that it not statistically significant. 
+
+```{r,echo=FALSE}
+ggplot(ddollars, aes(location, dining_dollars)) +
+  geom_point()+
+  annotate("point", x = 1, y = 196, color = "red", size = 3)+
+  annotate("point", x = 2, y = 202, color = "blue", size = 3)+
+  annotate("point", x = 3, y = 197, color = "green", size = 3)+
+  annotate("point", x = 4, y = 220, color = "yellow", size = 3)+
+  xlab("Location") +
+  ylab("Dining Dollars") +
+  ggtitle("Dining Dollars Per Location")
+```
+
+### Items Purchased Per Location 
+
+The model below shows the number of items people buy at different locations. At 8:15, most people buy 1 item. However, at the other locations such as ETC and Passport, the mean does not include zero. Because this difference does not include zero, we say that there is statistical evidence (at the 95% level) that the mean of the two cups is different. This is the opposite for Tylers, which includes 0. 
+
+```{r,echo=FALSE}
+model <- lm_basic((items_purchased) ~ 1 + location, data = ddollars)
+reg_table(model, level=.95)
+```
+The graph shows the means for the items purchased. ETC has the highest mean. This goes against my second hypothesis as I thought Passport has the highest mean for items purchased. This could be that people stock up on items before spring break and most people purchase snacks for weekend parties consistently. In addition, items are ETC are cheaper  Most people at 8:15 and Tyler's buy only 1 item. 
+
+```{r,echo=FALSE}
+ggplot(ddollars, aes(location, items_purchased)) +
+  geom_point()+
+  annotate("point", x = 1, y = 1.6, color = "red", size = 3)+
+  annotate("point", x = 2, y = 2.6, color = "blue", size = 3)+
+  annotate("point", x = 3, y = 2.5, color = "green", size = 3)+
+  annotate("point", x = 4, y = 1.8, color = "yellow", size = 3)+
+  xlab("Location") +
+  ylab("Items Purchased") +
+  ggtitle("Items Purchased Per Location")
+```
+
+### Dining Dollars + Location + Items 
+
+The model below shows the dining dollars in relationship with location and the mean of items purchased. It seems the means stay relatively the same to the first graph and we can see that the mean of items purchased acrossed the lcoation is around 2 items. The reg_table function is just giving us the intercept and slope of this line, along with confidence interval bounds for both.
+
+```{r,echo=FALSE}
+model <- lm_basic(dining_dollars ~ 1 + location + items_purchased, data = ddollars)
+reg_table(model, level = 0.95)
+```
+The graph below depicts the model. Most people that purchase 2-4 items have between 100-300 dining dollars. The mean stays consistent as items purchased increases. It is interesting that the mean and numbers only change slightly when including items purchased into the dining dollars and location relationship. This shows that there is no drastic impact that items purchased has on the overall dining dollar mean. As per my final hypothesis, most students fall within the 150-250 range, which confirms my hypothesis. 
+
+```{r, echo=FALSE}
+qplot(items_purchased, dining_dollars, data = ddollars) + geom_smooth(method = "lm")+
+  xlab("Items Purchased") +
+  ylab("Dining Dollars") +
+  ggtitle("Dining Dollars and Items Purchased")
+```
+
+## Conclusions
+
+After analyzing the data and using the graphs to show the means and linear regressions, we can assess my three hypotheses. 
+
+
+My first hypothesis was that students at 8:15 will have less dining dollars. Using my dining dollars per location graph, we are confident that 8:15 does have the lowest mean, but not by much. 
+
+My second hypothesis was that people buy more items at Passport. This was not true; ETC actually had the most items purchased with Passport coming in close second. I attributed this to more options at ETC, but also because it is cheaper than Passport items. 
+
+My final hypothesis was that most students will be around the 150-250 range following the school's reccomendation. We can see that this is true with the 95% confidence intervals. The means are around 196 to 220 between all locations. While some students fell massively beneath this number and some above, the mean follows my hypothesis. 
+
+
+
