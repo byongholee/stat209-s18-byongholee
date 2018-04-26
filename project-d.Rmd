@@ -1,0 +1,105 @@
+---
+title: "Poverty and Lung Cancer"
+author: "Byongho Lee"
+output: html_document
+---
+
+```{r setup, include=FALSE, message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(message = FALSE)
+knitr::opts_chunk$set(warning = FALSE)
+knitr::opts_chunk$set(out.width = "100%")
+knitr::opts_chunk$set(dpi = 300)
+
+library(readr)
+library(ggplot2)
+library(dplyr)
+library(ggmap)
+library(viridis)
+library(forcats)
+library(smodels)
+```
+
+
+```{r, include=FALSE}
+cancer <- read_csv("https://statsmaths.github.io/stat_data/cancer_inc_data.csv")
+```
+
+```{r, include=FALSE}
+Kentucky <- filter(cancer, state == "ky")
+Mississippi<- filter(cancer, state == "ms")
+Virginia<- filter(cancer, state == "va")
+NewJersey<- filter(cancer, state == "nj")
+```
+
+## Lung Cancer in Poor States
+
+I am looking to explore the percentage of citizens with lung cancer in states with high rates of poverty. My thesis is that geographically, areas away from big, urban cities with high rates of poverty have high rates of lung cancer. Due to their impoverished status, people in these areas would be unable to access or afford treatment. After looking at the map, we will be focusing on cities in two states: Kentucky and Mississippi. Both have high rates of poverty and we will be analyzing their relationship with lung cancer. In order to control for poverty rates, we will also be looking at Virginia, which has low rates of poverty. The map below shows the incidence rate of lung cancer per 100,000 men over 18. 
+
+```{r}
+qmplot(lon, lat, data = cancer, geom = "blank")+
+  geom_point(aes(color = lung), alpha = 0.8) +
+  scale_color_viridis(option="inferno")
+```
+
+### States in Poverty: Kentucky and Mississippi
+
+```{r}
+qmplot(lon, lat, data = Kentucky, geom = "blank")+
+  geom_point(aes(size = lung, color = poverty), alpha = .8) +
+  scale_color_viridis(option="inferno")+
+  annotate("rect", xmin = -85.764771, xmax = -84.664771,
+                   ymin =38.08732, ymax = 38.45,
+                   fill = "purple", alpha = 0.2)+
+  annotate("rect", xmin = -82.764771, xmax = -84.664771,
+                   ymin =36.728732, ymax = 37.20,
+                   fill = "red", alpha = 0.2)
+```
+In the first graph above, we can see that areas of Kentucky indicated in red, such as the South East region, have higher rates of poverty than areas indicated in purple around Louisville. When we observe the rates of lung cancer through size, we can see that lung cancer rates are much bigger in size for rural areas that big cities. The two biggest areas with high poverty are Floyd and Perry. This supports my thesis that poorer states have higher rates of lung cancer in certain geographical regions away from the cities. 
+
+```{r}
+ggplot(Kentucky, aes(population, lung))+
+    geom_text(aes(label=name), size = 2.5)+
+    annotate("point", x = 38144, y = 147, color="red", size=2)+
+    annotate("point", x = 27818, y = 137, color="red", size=2)
+```
+In the graph above, we see the relationship between population size (big, urban cities vs. small rural areas) and lung cancer. In correlation with the map, the south east areas such as Floyd and Perry as well as most of Kentucky's cities have low population numbers with high to average rates of poverty. Two cities stand out: Jefferson and Fayette as they have very high population rates with low lung cancer rates. This supports my thesis as geographically, some regions have higher rates of lung cancer due to high rates of poverty and vice versa.
+```{r}
+qmplot(lon, lat, data = Mississippi, geom = "blank")+
+  geom_point(aes(size = lung, color = poverty), alpha = 1) +
+  scale_color_viridis(option="inferno")
+```
+In addition, the graph above shows the different regions in Mississippi, another state with high rates of lung cancer. The north-west region seems to have high rates of poverty and decently sized rates of lung cancer. Bolivar and Washington are the two cities in this area with high poverty rates, but they do not seem to have the highest rates of lung cancer. On the other hand, the north-east region has some of the lower rates of poverty with average rates of lung cancer. Let's take a closer look at the population size of the cities in these regions. 
+
+```{r}
+ggplot(Mississippi, aes(population, lung))+
+    geom_text(aes(label=name), size = 2.5)+
+  annotate("point", x = 48824, y = 75.2, color="red", size=2)+
+  annotate("point", x = 33615, y = 76, color="red", size=2)
+```
+Similarily, we see that areas in Bolivar and Washington have low populaions rates with average rates of lung cancer. While their cancer rates are considerable, some other cities such as Lawrence, Grenada, and Itawamba have higher rates of lung cancer with the same population sizes and average rates of poverty. This weakens my original hypothesis as it shows that in some areas, poverty does not have the strongest relationship with lung cancer. One explanation could be smoking as Lawrence, Grenada, and Itawamba are clustered with other cities and have more access to cigarettes through supermarkets, shopping malls, and other outlets. Bolivar and Washington do not have the same level of access, which could explain the lower levels of lung cancer as it is directly correlated with smoking. 
+
+### A State Not In Poverty: Virginia 
+
+```{r}
+qmplot(lon, lat, data = Virginia, geom = "blank")+
+  geom_point(aes(size = lung, color = poverty), alpha = .8) +
+  scale_color_viridis(option="rainbow")
+```
+
+
+```{r}
+model <- lm_basic(poverty ~ 1, data = Virginia)
+reg_table(model, level = 0.95)
+```
+Above, we have a graph of Virginia to provide an example of a state with a low poverty rate. In addition, we also have a model that describes the mean of poverty rates across all cities in Virginia at a 95% confidence interval. 
+
+We will be comparing the previous states to Virginia to see if areas with low poverty have similar high rates of lung cancer in non-urban areas. We can see, with the exception of Harrisburg city and Petersburg city, that most of the areas in Virginia have low poverty rates, but the lung cancer rates are all varied. One example is Covington city, which has a 167 lung cancer rate, but has an roughly average poverty rate at 16.9. However, Halifax has a low lung cancer rate at 58, but an above average poverty rate at 22. All of these areas are away from the big cities (Richmond, Charlottesville, Arlington), but there is no definitive correlation between lung cancer and poverty rates in a non-impoverished state such as Virginia. 
+
+
+#### Conclusion 
+
+Ultimately, my original thesis was geographically, areas away from big, urban cities with high rates of poverty have high rates of lung cancer. This is because they are unable to afford treatment. For my analysis on Kentucky, my thesis largely held true, but not for my analysis on Mississippi. For MI, there were some cities that had high lung cancer rates, but were not the highest in terms of poverty. This shows that areas with high poverty rates do not always equate the highest lung cancer rates. Finally, controlling for Virginia allowed to us to determine how much of an impact poverty had to do with lung cancer.
+
+Unfortutnely, Virginia had too much variance as some areas had high cancer rates with average poverty rates or low cancer rates but high poverty rates. We also produced a model to show the average rate of poverty in Virginia to properly assess what was considered "low, average, and high." Overall, it seems that while my thesis statement generally is true, there are a few exceptions and further research should be conducted across multiple states with varing levels of poverty. 
+
